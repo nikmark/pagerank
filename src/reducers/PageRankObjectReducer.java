@@ -43,7 +43,7 @@ public class PageRankObjectReducer extends Reducer<IntWritable, Node, IntWritabl
 	@Override
 	protected void reduce(IntWritable key, Iterable<Node> values, Context context) throws IOException, InterruptedException {
 		
-		System.out.println( "total loss data: " + total_loss);
+		//System.out.println( "total loss data: " + total_loss);
 		
 		Double sum = new Double(0);
 		

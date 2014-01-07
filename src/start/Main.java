@@ -14,11 +14,13 @@ import org.apache.hadoop.fs.RemoteIterator;
 import org.apache.hadoop.util.ToolRunner;
 
 import drivers.CardinalityIMCRun;
+import drivers.PageRankObjectIMCRun;
+import drivers.PageRankObjectIMCSchimmyRun;
 import drivers.PageRankObjectRun;
 import drivers.PageRankSchimmyRun;
 
 enum MethodType {
-    SCHIMMY, NORMAL
+    SCHIMMY, NO_OPTIM, IMC, IMC_SCHIMMY
 }
 
 public class Main {
@@ -31,68 +33,26 @@ public class Main {
 
 		conf = new Configuration();
 		fs = FileSystem.get(conf);
-		fs.setWorkingDirectory(new Path("output/marchipettenuzzo"));
+		fs.setWorkingDirectory(new Path("/output/marchipettenuzzo"));
 		
 		if(args.length >= 5){
 			check = args[4];
 		}
 		
-		switch(parseMethod(check)){
-		
-			case SCHIMMY:
-					sequenceSchimmy(args);
-				break;
-			
-			case NORMAL:
-					sequenceNormal(args);
-				break;
-				
-			default: 
-					sequenceNormal(args);
-				break;
-			
-		}
-
-	}
-
-	public static void sequenceNormal(String[] args) throws Exception {
-		
-		////////////////////////////////////////	INIZIO	//////////////////////////////////////////////
-		
 		execCardinality(args);
-
 		readCardinalityAndMax();
-
-		execPageRank(args, false);
-		
-		////////////////////////////////////////	FINE	//////////////////////////////////////////////
-		
-		
+		execPageRank(args, parseMethod(check));
+			
 	}
 
-	public static void sequenceSchimmy(String[] args) throws Exception {
-		
-		execCardinality(args);
-		
-		////////////////////////////////////////	INIZIO	//////////////////////////////////////////////
-
-		readCardinalityAndMax();
-		
-		// probabile job di sorting
-		// discutiamo domani di questo
-		
-		//job di pagerank
-		execPageRank(args, true);
-
-		
-	}
+	
 
 	public static void execCardinality(String[] args) throws Exception {
 		String[] prepareOpts = { args[1], args[0]};
 		ToolRunner.run(conf, new CardinalityIMCRun(), prepareOpts);
 	}
 
-	public static void execPageRank(String[] args, boolean schimmy) throws IOException, Exception {
+	public static void execPageRank(String[] args, MethodType optimizations) throws IOException, Exception {
 		
 		Path prev = null, curr = null;
 		String[] opts = null;
@@ -115,10 +75,18 @@ public class Main {
 			
 			opts = new String[]{ prev.toString(), curr.toString(), args[0]};
 			
-			if(schimmy){
-				ToolRunner.run(conf, new PageRankSchimmyRun(), opts);
-			}else{
-				ToolRunner.run(conf, new PageRankObjectRun(), opts);
+			switch(optimizations) {
+				case SCHIMMY :
+					ToolRunner.run(conf, new PageRankSchimmyRun(), opts);
+					break;
+				case IMC :
+					ToolRunner.run(conf, new PageRankObjectIMCRun(), opts);
+					break;
+				case IMC_SCHIMMY :
+					ToolRunner.run(conf, new PageRankObjectIMCSchimmyRun(), opts);
+					break;
+				default :
+					ToolRunner.run(conf, new PageRankObjectRun(), opts);
 			}
 	
 //			fs.delete(prev, true);
@@ -168,10 +136,10 @@ public class Main {
 	}
 
 	private static MethodType parseMethod(String string) {
-		if(string.equalsIgnoreCase("schimmy")){
-			return MethodType.SCHIMMY;
-		}
-		return MethodType.NORMAL;
+		if(string.equalsIgnoreCase("schimmy"))				return MethodType.SCHIMMY;
+		else if(string.equalsIgnoreCase("imc"))				return MethodType.IMC;
+		else if(string.equalsIgnoreCase("imc-schimmy"))		return MethodType.IMC_SCHIMMY;
+															return MethodType.NO_OPTIM;
 	}
 
 //	private static Configuration setIntervalsReds(Path file, Configuration conf, Integer d, int numReds) throws IOException {
