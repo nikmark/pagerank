@@ -52,7 +52,7 @@ public class PageRankObjectMapper extends Mapper<LongWritable, Text, IntWritable
 		
 		FileSystem fs = FileSystem.get(context.getConfiguration());
 
-		Path filenamePath = new Path("loss-tmp/" + UUID.randomUUID().toString());
+		Path filenamePath = new Path("OUTPUT/loss-tmp/" + UUID.randomUUID().toString());
 		FSDataOutputStream out = fs.create(filenamePath);
 		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(out));
 

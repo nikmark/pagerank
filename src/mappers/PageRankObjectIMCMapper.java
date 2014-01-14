@@ -39,6 +39,7 @@ public class PageRankObjectIMCMapper extends Mapper<LongWritable, Text, IntWrita
 		Double p = node.outputPageRank();
 
 		node.setPagerankOld(node.getPagerank());
+//		node.setPagerank(0.0);
 		context.write(new IntWritable(Integer.parseInt(node.getName().toString())), node);
 		
 		if (node.getAdjacencyList().size() == 0) {
@@ -56,7 +57,7 @@ public class PageRankObjectIMCMapper extends Mapper<LongWritable, Text, IntWrita
 		
 		FileSystem fs = FileSystem.get(context.getConfiguration());
 
-		Path filenamePath = new Path("loss-tmp/" + UUID.randomUUID().toString());
+		Path filenamePath = new Path("OUTPUT/loss-tmp/" + UUID.randomUUID().toString());
 		FSDataOutputStream out = fs.create(filenamePath);
 		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(out));
 

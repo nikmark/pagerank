@@ -50,7 +50,7 @@ public class CardinalityIMCReducer extends Reducer<IntWritable, Node, IntWritabl
 		
 		FileSystem fs = FileSystem.get(context.getConfiguration());
 
-		Path filenamePath = new Path("cardinality/"+UUID.randomUUID());
+		Path filenamePath = new Path("OUTPUT/cardinality/"+UUID.randomUUID());
 		FSDataOutputStream out = fs.create(filenamePath);
 		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(out));
 

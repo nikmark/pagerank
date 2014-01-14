@@ -28,7 +28,7 @@ public class PageRankObjectReducer extends Reducer<IntWritable, Node, IntWritabl
 		cardinality = context.getConfiguration().getLong("cardinality", 1);
 		
 		FileSystem fs = FileSystem.get(context.getConfiguration());
-		RemoteIterator<LocatedFileStatus> list = fs.listFiles(new Path("loss-tmp"), true);
+		RemoteIterator<LocatedFileStatus> list = fs.listFiles(new Path("OUTPUT/loss-tmp"), true);
 		
 		while(list.hasNext()){
 			
@@ -67,7 +67,7 @@ public class PageRankObjectReducer extends Reducer<IntWritable, Node, IntWritabl
 			if(Math.abs(p-node.getPagerankOld()) > (0.1 / cardinality)){
 				FileSystem fs = FileSystem.get(context.getConfiguration());
 				try {
-					fs.createNewFile(new Path("convergence"));
+					fs.createNewFile(new Path("OUTPUT/convergence"));
 				} catch (Exception e) {}
 			}
 			
