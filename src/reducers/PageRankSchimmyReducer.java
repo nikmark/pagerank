@@ -113,7 +113,7 @@ public class PageRankSchimmyReducer extends Reducer<IntWritable, DoubleWritable,
 			if(output.containsKey(new IntWritable(Integer.parseInt(rawOut[0])))){				
 				p_new = output.get(new IntWritable(Integer.parseInt(rawOut[0])));
 			}else{
-				p_new = ((total_loss/cardinality.doubleValue()));
+				p_new = ((ALPHA / cardinality) + (1 - ALPHA) *(total_loss/cardinality.doubleValue()));
 			}
 			
 			

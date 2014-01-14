@@ -126,7 +126,7 @@ public class CardinalityIMCRun extends Configured implements Tool {
 	        TotalOrderPartitioner.setPartitionFile(orderJob.getConfiguration(),partitionFile);
 
 	        orderJob.setOutputKeyClass(IntWritable.class);
-	        orderJob.setOutputValueClass(Text.class);
+	        orderJob.setOutputValueClass(Node.class);
 
 	        // Set the input to the previous job's output
 	        orderJob.setInputFormatClass(SequenceFileInputFormat.class);
@@ -134,8 +134,8 @@ public class CardinalityIMCRun extends Configured implements Tool {
 
 	        // Set the output path to the command line parameter
 //	        FileOutputFormat.setOutputPath(job, outputOrder);
-	        orderJob.setOutputFormatClass(TextOutputFormat.class);
-            FileOutputFormat.setOutputPath(orderJob, outputOrder);
+	        orderJob.setOutputFormatClass(SequenceFileOutputFormat.class);
+            SequenceFileOutputFormat.setOutputPath(orderJob, outputOrder);
 	        // Set the separator to an empty string
 	        orderJob.getConfiguration().set("mapred.textoutputformat.separator", "\t");
 

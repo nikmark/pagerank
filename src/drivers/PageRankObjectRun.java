@@ -24,7 +24,7 @@ public class PageRankObjectRun extends Configured implements Tool {
 	public int run(String[] args) throws Exception {
 
 		Configuration conf = getConf();
-	    Path partitionFile = new Path("OUTPUT/test_partitions.lst");
+//	    Path partitionFile = new Path("OUTPUT/test_partitions.lst");
 
 		Job job = Job.getInstance(conf, "PageRankStage");
 		
@@ -40,10 +40,10 @@ public class PageRankObjectRun extends Configured implements Tool {
 		job.setMapOutputKeyClass(IntWritable.class);
 		job.setMapOutputValueClass(Node.class);
 		
-		job.setPartitionerClass(TotalOrderPartitioner.class);
-        TotalOrderPartitioner.setPartitionFile(job.getConfiguration(),partitionFile);
-        job.getConfiguration().set("mapred.textoutputformat.separator", "\t");
-        InputSampler.writePartitionFile(job,new InputSampler.SplitSampler(12));
+//		job.setPartitionerClass(TotalOrderPartitioner.class);
+//        TotalOrderPartitioner.setPartitionFile(job.getConfiguration(),partitionFile);
+//        job.getConfiguration().set("mapred.textoutputformat.separator", "\t");
+//        InputSampler.writePartitionFile(job,new InputSampler.SplitSampler(12));
 
 		job.setReducerClass(PageRankObjectReducer.class);
 		job.setNumReduceTasks(Integer.parseInt(args[2]));
