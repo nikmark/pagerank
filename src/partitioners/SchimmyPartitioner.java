@@ -6,27 +6,23 @@ import java.util.Map.Entry;
 import org.apache.hadoop.conf.Configurable;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.DoubleWritable;
-import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.mapreduce.Partitioner;
 
-import utils.Data;
+/**
+ * Partitioner per lo Schimmy design pattern. Detto anche RangePartitioner.
+ * 
+ * @author Nicolò Marchi, Fabio Pettenuzzo
+ *
+ */	
+public class SchimmyPartitioner extends Partitioner<LongWritable, DoubleWritable> implements Configurable {
 
-public class SchimmyPartitioner extends Partitioner<IntWritable, DoubleWritable> implements Configurable {
-
-	HashMap<Integer, Integer[]> intervals = new HashMap<Integer, Integer[]>();
+	private HashMap<Integer, Integer[]> intervals = new HashMap<Integer, Integer[]>();
     private Configuration configuration;
-    int nodeCnt=0;
-    
-//    public int getPartition(IntWritable key, Data data, int numReducers){
-////    	NaturalKeyPartitioner n = new NaturalKeyPartitioner();
-////    	n.getPartition(new IntWritable(Integer.parseInt(key.toString())), new Node(), numReducers);
-//    	return (int) (((float) key.get() / (float) (nodeCnt+1)) * numReducers) % numReducers;
-//    }
-    
-    
+    private int nodeCnt=0;
 
     @Override
-	public int getPartition(IntWritable key, DoubleWritable data, int numReducers) {
+	public int getPartition(LongWritable key, DoubleWritable data, int numReducers) {
 		
 		intervals = populateIntervals(numReducers);
 		
@@ -44,13 +40,12 @@ public class SchimmyPartitioner extends Partitioner<IntWritable, DoubleWritable>
 		HashMap<Integer, Integer[]> tmp  = new HashMap<Integer, Integer[]>();
 		
 		if(intervals.size() == 0){
-		for(int i= 0; i<numReducers; i++){
-			String[] split = configuration.get("interval-"+i).split("-");
-			System.err.println(configuration.get("interval-"+i));
-			tmp.put(i, new Integer[]{Integer.parseInt(split[0]), Integer.parseInt(split[1])});
-		}
-		return tmp;
-
+			for(int i= 0; i<numReducers; i++){
+				String[] split = configuration.get("interval-"+i).split("-");
+				System.err.println(configuration.get("interval-"+i));
+				tmp.put(i, new Integer[]{Integer.parseInt(split[0]), Integer.parseInt(split[1])});
+			}
+			return tmp;
 		}
 		
 		return intervals;
@@ -64,7 +59,6 @@ public class SchimmyPartitioner extends Partitioner<IntWritable, DoubleWritable>
 	@Override
 	public void setConf(Configuration arg0) {
 		this.configuration = arg0;
-//		nodeCnt = configuration.getInt("max", 1);
 		nodeCnt = configuration.getInt("cardinality", 1);
 		
 	}

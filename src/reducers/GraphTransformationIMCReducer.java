@@ -11,18 +11,30 @@ import java.util.UUID;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.mapreduce.Reducer;
 
 import utils.Node;
 
-public class CardinalityIMCReducer extends Reducer<IntWritable, Node, IntWritable, Node> {
+/**
+ * Reducer per il mapper relativo alla trasformazione del grafo. Scrive su file il refactoring del grafo.
+ * 
+ * @author Nicolò Marchi, Fabio Pettenuzzo
+ *
+ */	
+public class GraphTransformationIMCReducer extends Reducer<LongWritable, Node, LongWritable, Node> {
 	
-	Integer cardinality = new Integer(0);	
-	Integer max = 0;
+	private Integer cardinality;	
 
+	@Override
+	protected void setup(Reducer<LongWritable,Node,LongWritable,Node>.Context context) throws IOException ,InterruptedException {
+		
+		cardinality = new Integer(0);	
+		
+	};
 	
-	protected void reduce(IntWritable key, java.lang.Iterable<Node> values, Reducer<IntWritable,Node,IntWritable,Node>.Context context) throws IOException ,InterruptedException {
+	@Override
+	protected void reduce(LongWritable key, java.lang.Iterable<Node> values, Reducer<LongWritable,Node,LongWritable,Node>.Context context) throws IOException ,InterruptedException {
 		
 		StringBuilder sb = new StringBuilder();
 		sb.append(-1.0);
@@ -38,15 +50,12 @@ public class CardinalityIMCReducer extends Reducer<IntWritable, Node, IntWritabl
 
 		cardinality++;
 		
-		if(max <= key.get()){
-			max = key.get();
-		}
-		
 		context.write(key, node);
 		
 	};
 	
-	protected void cleanup(Reducer<IntWritable,Node,IntWritable,Node>.Context context) throws IOException ,InterruptedException {
+	@Override
+	protected void cleanup(Reducer<LongWritable,Node,LongWritable,Node>.Context context) throws IOException ,InterruptedException {
 		
 		FileSystem fs = FileSystem.get(context.getConfiguration());
 
@@ -54,7 +63,7 @@ public class CardinalityIMCReducer extends Reducer<IntWritable, Node, IntWritabl
 		FSDataOutputStream out = fs.create(filenamePath);
 		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(out));
 
-		String o = new String("" + cardinality + "\t" +max);
+		String o = new String("" + cardinality);
 		
 		bw.write(o);
 		bw.close();

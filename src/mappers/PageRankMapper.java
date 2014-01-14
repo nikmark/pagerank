@@ -8,21 +8,33 @@ import java.util.UUID;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
 import utils.Node;
 
-public class PageRankObjectMapper extends Mapper<LongWritable, Text, IntWritable, Node> {
+/**
+ * Mapper per il calcolo del PageRank senza nessun tipo di ottimizzazione.
+ * 
+ * @author Nicolò Marchi, Fabio Pettenuzzo
+ *
+ */
+public class PageRankMapper extends Mapper<LongWritable, Text, LongWritable, Node> {
 
-	Double loss = new Double(0.0);
-
+	private Double loss;
+	private Integer cardinality;
+	
+	@Override
+	protected void setup(Mapper<LongWritable,Text,LongWritable,Node>.Context context) throws IOException ,InterruptedException {
+		
+		loss = new Double(0.0);
+		cardinality = context.getConfiguration().getInt("cardinality", 1);
+		
+	};
+	
 	@Override
 	protected void map(LongWritable key, Text record, Context context) throws IOException, InterruptedException {
-
-		Long cardinality = context.getConfiguration().getLong("cardinality", 1);
 
 		Node node = new Node(record);
 
@@ -34,7 +46,7 @@ public class PageRankObjectMapper extends Mapper<LongWritable, Text, IntWritable
 		Double p = node.outputPageRank();
 
 		node.setPagerankOld(node.getPagerank());
-		context.write(new IntWritable(Integer.parseInt(node.getName().toString())), node);
+		context.write(new LongWritable(Integer.parseInt(node.getName().toString())), node);
 		
 		if (node.getAdjacencyList().size() == 0) {
 			loss += node.getPagerank();
@@ -44,11 +56,12 @@ public class PageRankObjectMapper extends Mapper<LongWritable, Text, IntWritable
 			Node n_node = new Node();
 			n_node.setPagerank(p);
 			n_node.setVertex(false);
-			context.write(new IntWritable(Integer.parseInt(s)), n_node);
+			context.write(new LongWritable(Integer.parseInt(s)), n_node);
 		}
 	}
 
-	protected void cleanup(Mapper<LongWritable, Text, IntWritable, Node>.Context context) 	throws IOException, InterruptedException {
+	@Override
+	protected void cleanup(Mapper<LongWritable, Text, LongWritable, Node>.Context context) 	throws IOException, InterruptedException {
 		
 		FileSystem fs = FileSystem.get(context.getConfiguration());
 

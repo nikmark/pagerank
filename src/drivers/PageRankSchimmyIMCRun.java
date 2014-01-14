@@ -6,7 +6,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.DoubleWritable;
-import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
@@ -15,7 +15,13 @@ import org.apache.hadoop.util.Tool;
 import partitioners.SchimmyPartitioner;
 import reducers.PageRankSchimmyReducer;
 
-public class PageRankObjectIMCSchimmyRun extends Configured implements Tool {
+/**
+ * Classe driver per l'avvio del job riguardante il calcolo del pagerank con In-Map Combiner e Schimmy design pattern.
+ * 
+ * @author Nicolò Marchi, Fabio Pettenuzzo
+ *
+ */
+public class PageRankSchimmyIMCRun extends Configured implements Tool {
 
 	@Override
 	public int run(String[] args) throws Exception {
@@ -24,10 +30,10 @@ public class PageRankObjectIMCSchimmyRun extends Configured implements Tool {
 		
 		Job job = Job.getInstance(conf, "PageRankIMCSchimmyStage");
 		
-		job.setJarByClass(PageRankObjectIMCSchimmyRun.class);
+		job.setJarByClass(PageRankSchimmyIMCRun.class);
 		job.setMapperClass(PageRankIMCSchimmyMapper.class);
 		
-		job.setMapOutputKeyClass(IntWritable.class);
+		job.setMapOutputKeyClass(LongWritable.class);
 		job.setMapOutputValueClass(DoubleWritable.class);
 		
 		job.setPartitionerClass(SchimmyPartitioner.class); 

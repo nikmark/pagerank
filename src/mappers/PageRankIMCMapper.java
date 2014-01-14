@@ -10,17 +10,29 @@ import java.util.UUID;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
 import utils.Node;
 
-public class PageRankObjectIMCMapper extends Mapper<LongWritable, Text, IntWritable, Node> {
+/**
+ * Mapper per il calcolo del PageRank, con In-Map Combiner.
+ * 
+ * @author Nicolò Marchi, Fabio Pettenuzzo
+ *
+ */
+public class PageRankIMCMapper extends Mapper<LongWritable, Text, LongWritable, Node> {
 
-	Double loss = new Double(0.0);
-	HashMap<IntWritable, Double> pageRankCollector = new HashMap<IntWritable, Double>();
+	private Double loss;
+	private HashMap<LongWritable, Double> pageRankCollector;
+	
+	protected void setup(Mapper<LongWritable,Text,LongWritable,Node>.Context context) throws IOException ,InterruptedException {
+		
+		loss = new Double(0.0);
+		pageRankCollector = new HashMap<LongWritable, Double>();
+		
+	};
 
 	@Override
 	protected void map(LongWritable key, Text record, Context context) throws IOException, InterruptedException {
@@ -39,21 +51,21 @@ public class PageRankObjectIMCMapper extends Mapper<LongWritable, Text, IntWrita
 		Double p = node.outputPageRank();
 
 		node.setPagerankOld(node.getPagerank());
-//		node.setPagerank(0.0);
-		context.write(new IntWritable(Integer.parseInt(node.getName().toString())), node);
+		context.write(new LongWritable(Integer.parseInt(node.getName().toString())), node);
 		
 		if (node.getAdjacencyList().size() == 0) {
 			loss += node.getPagerank();
 		}
 		
 		for (String s : node.getAdjacencyList()) {
-			IntWritable childKey = new IntWritable(Integer.parseInt(s));			
+			LongWritable childKey = new LongWritable(Integer.parseInt(s));			
 			pageRankCollector.put(childKey, 
 					pageRankCollector.containsKey(childKey) ? (pageRankCollector.get(childKey) + p) : p);
 		}
 	}
 
-	protected void cleanup(Mapper<LongWritable, Text, IntWritable, Node>.Context context) 	throws IOException, InterruptedException {
+	@Override
+	protected void cleanup(Mapper<LongWritable, Text, LongWritable, Node>.Context context) 	throws IOException, InterruptedException {
 		
 		FileSystem fs = FileSystem.get(context.getConfiguration());
 
@@ -63,10 +75,9 @@ public class PageRankObjectIMCMapper extends Mapper<LongWritable, Text, IntWrita
 
 		String o = new String("" + loss);
 		
-		for(Entry<IntWritable, Double> e : pageRankCollector.entrySet()) {
+		for(Entry<LongWritable, Double> e : pageRankCollector.entrySet()) {
 			Node n_node = new Node();
 			n_node.setPagerank(e.getValue());
-//			n_node.setVertex(false);
 			context.write(e.getKey(), n_node);
 		}
 		

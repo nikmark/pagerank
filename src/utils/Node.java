@@ -4,25 +4,24 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Random;
-import java.util.Set;
-import java.util.UUID;
 
-import org.apache.hadoop.hdfs.qjournal.protocol.QJournalProtocolProtos.NewEpochRequestProto;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.mapred.ID;
-
+/**
+ * Struttura dati per il salvataggio del nodo del grafo, contenente i valori di PageRank presente e precedente, e tutta la lista d'adiacenza del nodo stesso.
+ * 
+ * @author Nicolò Marchi, Fabio Pettenuzzo
+ *
+ */
 public class Node implements Writable {
 	
-	Text name = new Text("");
-	Double pagerank = new Double(-1);	
-	Double pagerankOld = new Double(-1);
-	Boolean vertex = false;
+	Text name;
+	Double pagerank;	
+	Double pagerankOld;
+	Boolean vertex;
 
-	List<String> adjacencyList = new ArrayList<String>();
+	List<String> adjacencyList;
 	
 	public Node(Text record){
 		
@@ -46,6 +45,13 @@ public class Node implements Writable {
 	}
 
 	public Node() {
+		name = new Text("");
+		pagerank = new Double(-1);	
+		pagerankOld = new Double(-1);
+		vertex = false;
+		
+		adjacencyList = new ArrayList<String>();
+
 	}
 
 	public Boolean isVertex() {

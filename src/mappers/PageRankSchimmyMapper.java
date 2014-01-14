@@ -14,26 +14,30 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
-	
-public class PageRankSchimmyMapper extends
-		Mapper<LongWritable, Text, IntWritable, DoubleWritable> {
+/**
+ * Mapper per il calcolo del PageRank senza nessun tipo di ottimizzazione.
+ * 
+ * @author Nicolò Marchi, Fabio Pettenuzzo
+ *
+ */	
+public class PageRankSchimmyMapper extends Mapper<LongWritable, Text, LongWritable, DoubleWritable> {
 
-	// Integer cardinality = new Integer(0);
+	private Integer cardinality;
 
-	Double loss = new Double(0.0);
-	Double pageRank = new Double(0.0);
+	private Double loss;
+	private Double pageRank;
 
-	//protected void setup(org.apache.hadoop.mapreduce.Mapper<LongWritable,Text,IntWritable,DoubleWritable>.Context context) throws IOException ,InterruptedException {
-	//	loss = new Double(0.0)
-	//};
-			
+	@Override
+	protected void setup(Mapper<LongWritable,Text,LongWritable,DoubleWritable>.Context context) throws IOException ,InterruptedException {
+		
+		loss = new Double(0.0);
+		pageRank = new Double(0.0);
+		cardinality = context.getConfiguration().getInt("cardinality", 1);
+		
+	};	
 			
 	@Override
 	protected void map(LongWritable key, Text record, Context context) throws IOException, InterruptedException {
-
-		Integer cardinality = context.getConfiguration().getInt("cardinality", 0);
-
-		//loss = new Double(0.0);
 		
 		String[] split = record.toString().split("\\s");
 				
@@ -52,17 +56,16 @@ public class PageRankSchimmyMapper extends
 							
 		if(split.length > 2){
 			for (int i = 2; i < split.length; i++) {
-//				Data tmp = new Data();
-//				tmp.setPageRank(tmp.getOutputPageRank(split.length - 2));
 				Double output = pageRank / (split.length-2);
-				context.write(new IntWritable(Integer.parseInt(split[i])),new DoubleWritable(output) );
+				context.write(new LongWritable(Integer.parseInt(split[i])),new DoubleWritable(output) );
 			}
 			
 		}
 				
 	}
 
-	protected void cleanup(Mapper<LongWritable, Text, IntWritable, DoubleWritable>.Context context) 	throws IOException, InterruptedException {
+	@Override
+	protected void cleanup(Mapper<LongWritable, Text, LongWritable, DoubleWritable>.Context context) 	throws IOException, InterruptedException {
 		
 		FileSystem fs = FileSystem.get(context.getConfiguration());
 

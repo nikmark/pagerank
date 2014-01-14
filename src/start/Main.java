@@ -12,18 +12,12 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.RemoteIterator;
-import org.apache.hadoop.io.IOUtils;
-import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.SequenceFile;
-import org.apache.hadoop.io.SequenceFile.Reader;
-import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.util.ReflectionUtils;
 import org.apache.hadoop.util.ToolRunner;
 
-import drivers.CardinalityIMCRun;
-import drivers.PageRankObjectIMCRun;
-import drivers.PageRankObjectIMCSchimmyRun;
-import drivers.PageRankObjectRun;
+import drivers.GraphTransformationIMCRun;
+import drivers.PageRankIMCRun;
+import drivers.PageRankSchimmyIMCRun;
+import drivers.PageRankRun;
 import drivers.PageRankSchimmyRun;
 
 enum MethodType {
@@ -83,7 +77,7 @@ public class Main {
 	 */
 	public static void execCardinality(String[] args) throws Exception {
 		String[] prepareOpts = { args[1], args[0]};
-		ToolRunner.run(conf, new CardinalityIMCRun(), prepareOpts);
+		ToolRunner.run(conf, new GraphTransformationIMCRun(), prepareOpts);
 	}
 
 	/**
@@ -112,8 +106,6 @@ public class Main {
 //			}
 			
 			conf.setInt("iteration", i);
-			conf.setInt("it-lim", Integer.parseInt(args[3]));
-			conf.setInt("nReducers", Integer.parseInt(args[0]));
 			
 			prev = new Path("OUTPUT/"+"pr-" + i + ".out");
 			curr = new Path("OUTPUT/" + "pr-" + (i+1) + ".out");
@@ -129,13 +121,13 @@ public class Main {
 					ToolRunner.run(conf, new PageRankSchimmyRun(), opts);
 					break;
 				case IMC :
-					ToolRunner.run(conf, new PageRankObjectIMCRun(), opts);
+					ToolRunner.run(conf, new PageRankIMCRun(), opts);
 					break;
 				case IMC_SCHIMMY :
-					ToolRunner.run(conf, new PageRankObjectIMCSchimmyRun(), opts);
+					ToolRunner.run(conf, new PageRankSchimmyIMCRun(), opts);
 					break;
 				default :
-					ToolRunner.run(conf, new PageRankObjectRun(), opts);
+					ToolRunner.run(conf, new PageRankRun(), opts);
 			}
 	
 			fs.delete(prev, true);
@@ -166,7 +158,6 @@ public class Main {
 		
 		RemoteIterator<LocatedFileStatus> list = fs.listFiles(new Path("OUTPUT/cardinality"), true);
 		Integer cardinality = new Integer(0);
-		Integer max = new Integer(0);
 		
 		while (list.hasNext()) {
 	
@@ -175,16 +166,12 @@ public class Main {
 	
 			String[] s = bw.readLine().split("\\t");
 			cardinality += Integer.parseInt(s[0]);
-			if(max <= Integer.parseInt(s[1])){
-				max = Integer.parseInt(s[1]);
-			}
+			
 			bw.close();
 			out.close();
 		}
 	
-		
 		conf.setInt("cardinality", cardinality);
-		conf.setInt("max", max);
 		
 		fs.delete(new Path("OUTPUT/cardinality"), true);
 	
@@ -207,34 +194,6 @@ public class Main {
 	 */
 	public static Configuration setIntervalsReds(Path file, int numReds) throws IOException {
 		
-//        FileSystem fs = FileSystem.get(conf);
-//        SequenceFile.Reader reader = null;      
-//		
-//		FileStatus[] status = FileSystem.get(conf).listStatus(file);
-//		for (int i=0;i<status.length;i++){
-//			if(status[i].getLen() == 0){
-//				continue;
-//			}
-//			reader = new SequenceFile.Reader(conf, Reader.file(status[i].getPath()));
-//			IntWritable key = (IntWritable) ReflectionUtils.newInstance(reader.getKeyClass(), conf);
-//          Writable value = (Writable) ReflectionUtils.newInstance(reader.getValueClass(), conf);
-////			in = FileSystem.get(conf).open(status[i].getPath());
-//          
-//          reader.next(key, value);
-//          IntWritable secondKey = null, firstKey = key;
-//          
-//          while (reader.next(key, value)) {
-//        	  secondKey = key;
-//          }
-//  		conf.set("interval-"+(i-1), firstKey.get()+"-"+secondKey.get());
-//  		System.out.println("interval-"+(i-1)+" "+ firstKey.get()+"-"+secondKey.get());
-//		    
-//		    
-//
-//
-//		}
-
-		
 	    String tmp, firstKey, secondKey = null;
 		FSDataInputStream in;
 		BufferedReader b;
@@ -244,6 +203,7 @@ public class Main {
 			if(status[i].getLen() == 0){
 				continue;
 			}
+			
 			in = FileSystem.get(conf).open(status[i].getPath());
 		    b = new BufferedReader(new InputStreamReader(in));
 		    
