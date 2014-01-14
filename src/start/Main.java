@@ -207,66 +207,55 @@ public class Main {
 	 */
 	public static Configuration setIntervalsReds(Path file, int numReds) throws IOException {
 		
-        FileSystem fs = FileSystem.get(conf);
-        SequenceFile.Reader reader = null;      
-		
-		FileStatus[] status = FileSystem.get(conf).listStatus(file);
-		for (int i=0;i<status.length;i++){
-			if(status[i].getLen() == 0){
-				continue;
-			}
-			reader = new SequenceFile.Reader(conf, Reader.file(status[i].getPath()));
-			IntWritable key = (IntWritable) ReflectionUtils.newInstance(reader.getKeyClass(), conf);
-          Writable value = (Writable) ReflectionUtils.newInstance(reader.getValueClass(), conf);
-//			in = FileSystem.get(conf).open(status[i].getPath());
-          
-          reader.next(key, value);
-          IntWritable secondKey = null, firstKey = key;
-          
-          while (reader.next(key, value)) {
-        	  secondKey = key;
-          }
-  		conf.set("interval-"+(i-1), firstKey.get()+"-"+secondKey.get());
-  		System.out.println("interval-"+(i-1)+" "+ firstKey.get()+"-"+secondKey.get());
-		    
-		    
-
-
-		}
-//        try {
-//            reader = new SequenceFile.Reader(conf, Reader.file(seqFilePath));
-//            IntWritable key = (IntWritable) ReflectionUtils.newInstance(reader.getKeyClass(), conf);
-//            Writable value = (Writable) ReflectionUtils.newInstance(reader.getValueClass(), conf);
-////            while (reader.next(key, value)) {
-////                System.out.println(key + "  <===>  " + value.toString());
-////            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        } finally {
-//            IOUtils.closeStream(reader);
-//        }
-		
-//	    String tmp, firstKey, secondKey = null;
-//		FSDataInputStream in;
-//		BufferedReader b;
+//        FileSystem fs = FileSystem.get(conf);
+//        SequenceFile.Reader reader = null;      
 //		
 //		FileStatus[] status = FileSystem.get(conf).listStatus(file);
 //		for (int i=0;i<status.length;i++){
 //			if(status[i].getLen() == 0){
 //				continue;
 //			}
-//			in = FileSystem.get(conf).open(status[i].getPath());
-//		    b = new BufferedReader(new InputStreamReader(in));
+//			reader = new SequenceFile.Reader(conf, Reader.file(status[i].getPath()));
+//			IntWritable key = (IntWritable) ReflectionUtils.newInstance(reader.getKeyClass(), conf);
+//          Writable value = (Writable) ReflectionUtils.newInstance(reader.getValueClass(), conf);
+////			in = FileSystem.get(conf).open(status[i].getPath());
+//          
+//          reader.next(key, value);
+//          IntWritable secondKey = null, firstKey = key;
+//          
+//          while (reader.next(key, value)) {
+//        	  secondKey = key;
+//          }
+//  		conf.set("interval-"+(i-1), firstKey.get()+"-"+secondKey.get());
+//  		System.out.println("interval-"+(i-1)+" "+ firstKey.get()+"-"+secondKey.get());
 //		    
-//		    firstKey= b.readLine();
-//		    while((tmp = b.readLine())!= null){
-//		    	secondKey = tmp;
-//		    }
-//    		conf.set("interval-"+(i-1), firstKey.split("\\t")[0]+"-"+secondKey.split("\\t")[0]);
-//    		System.out.println("interval-"+(i-1)+" "+ firstKey.split("\\t")[0]+"-"+secondKey.split("\\t")[0]);
+//		    
+//
 //
 //		}
-//		
+
+		
+	    String tmp, firstKey, secondKey = null;
+		FSDataInputStream in;
+		BufferedReader b;
+		
+		FileStatus[] status = FileSystem.get(conf).listStatus(file);
+		for (int i=0;i<status.length;i++){
+			if(status[i].getLen() == 0){
+				continue;
+			}
+			in = FileSystem.get(conf).open(status[i].getPath());
+		    b = new BufferedReader(new InputStreamReader(in));
+		    
+		    firstKey= b.readLine();
+		    while((tmp = b.readLine())!= null){
+		    	secondKey = tmp;
+		    }
+    		conf.set("interval-"+(i-1), firstKey.split("\\t")[0]+"-"+secondKey.split("\\t")[0]);
+    		System.out.println("interval-"+(i-1)+" "+ firstKey.split("\\t")[0]+"-"+secondKey.split("\\t")[0]);
+
+		}
+
 		return conf;
 	}
 
