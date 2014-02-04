@@ -50,9 +50,7 @@ public class PageRankMapper extends Mapper<LongWritable, Text, LongWritable, Nod
 		node.clear();
 		node.set(record);
 
-//		tmp.set(key.toString());
 		tK.set(Long.parseLong(node.getName().toString()));
-//		node.setName(tmp);
 		if (node.getPagerank() == -1) {
 			node.setPagerank(1 / cardinality.doubleValue());
 			node.setPagerankOld(1 / cardinality.doubleValue());

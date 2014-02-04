@@ -51,7 +51,6 @@ public class PageRankSchimmyMapper extends Mapper<LongWritable, Node, LongWritab
 	@Override
 	protected void map(LongWritable key, Node record, Context context) throws IOException, InterruptedException {
 		
-//		String[] split = record.toString().split("\\s");
 		node.set(record);
 		pageRank = node.getPagerank();
 				

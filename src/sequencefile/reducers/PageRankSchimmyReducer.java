@@ -100,10 +100,8 @@ public class PageRankSchimmyReducer extends Reducer<LongWritable, DoubleWritable
 			value = (Node) reader.getValueClass().newInstance();
 
 		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		

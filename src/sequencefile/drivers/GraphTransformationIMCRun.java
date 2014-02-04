@@ -39,11 +39,8 @@ public class GraphTransformationIMCRun extends Configured implements Tool {
 		Configuration conf = getConf();
 		Job job = Job.getInstance(conf, "CardinalityStage");
 
-//	INIZIO
-	    // Configure job to prepare for sampling
 		job.setJarByClass(GraphTransformationIMCRun.class);
 
-	    // Use the mapper implementation with zero reduce tasks
 		job.setMapperClass(GraphTransformationIMCMapper.class);
 
 		job.setReducerClass(GraphTransformationIMCReducer.class);
@@ -57,64 +54,45 @@ public class GraphTransformationIMCRun extends Configured implements Tool {
 
 		FileInputFormat.addInputPath(job, new Path(args[0]));
 
-	    // Set the output format to a sequence file
 	    job.setOutputFormatClass(SequenceFileOutputFormat.class);
 	    SequenceFileOutputFormat.setOutputPath(job, outputStage);
 
-//	    .setOutputPath(sampleJob, outputStage); 	new Path("OUTPUT/pr-0.out")
 	    int code = (job.waitForCompletion(true) ? 0 : 1);
-	    // Submit the job and get completion code.
+
 	    if (code == 0) {
 	    	
 	        Job orderJob = new Job(conf, "TotalOrderSortingStage");
 	        orderJob.setJarByClass(GraphTransformationIMCRun.class);
 
-	        // Here, use the identity mapper to output the key/value pairs in
-	        // the SequenceFile
 	        orderJob.setMapperClass(Mapper.class);
 	        orderJob.setReducerClass(Reducer.class);
-//			orderJob.setReducerClass(GraphTransformationIMCReducer.class);
 
-
-	        // Set the number of reduce tasks to an appropriate number for the
-	        // amount of data being sorted
 	        orderJob.setNumReduceTasks(Integer.parseInt(args[1]));
 
 	        orderJob.setMapOutputKeyClass(LongWritable.class);
 	        orderJob.setMapOutputValueClass(Node.class);
-	        // Set the partition file
 
 	        orderJob.setOutputKeyClass(LongWritable.class);
 	        orderJob.setOutputValueClass(Node.class);
 
-	        // Set the input to the previous job's output
 	        orderJob.setInputFormatClass(SequenceFileInputFormat.class);
 	        SequenceFileInputFormat.setInputPaths(orderJob, outputStage);
 
-	        // Set the output path to the command line parameter
-//	        FileOutputFormat.setOutputPath(job, outputOrder);
 	        orderJob.setOutputFormatClass(SequenceFileOutputFormat.class);
 	        FileOutputFormat.setOutputPath(orderJob, outputOrder);
-	        // Set the separator to an empty string
-//	        orderJob.getConfiguration().set("mapreduce.output.textoutputformat.separator", "\t");
 
-	        // Use the InputSampler to go through the output of the previous
-	        // job, sample it, and create the partition file
 	        TotalOrderPartitioner.setPartitionFile(orderJob.getConfiguration(),partitionFile);
 
 	        InputSampler.writePartitionFile(orderJob,new InputSampler.SplitSampler<IntWritable, Node>(1000000));
 	        orderJob.setPartitionerClass(TotalOrderPartitioner.class);
 
-	        // Submit the job
 	        code = orderJob.waitForCompletion(true) ? 0 : 2;
 	    }
 
-	    // Clean up the partition file and the staging directory
 	    FileSystem.get(conf).delete(partitionFile, false);
 	    FileSystem.get(conf).delete(outputStage, true);
 
 		return code;
-//	FINE
 	}
 
 }

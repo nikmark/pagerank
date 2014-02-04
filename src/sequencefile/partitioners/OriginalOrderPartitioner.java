@@ -16,11 +16,7 @@ import org.apache.hadoop.mapreduce.Partitioner;
 public class OriginalOrderPartitioner extends Partitioner<LongWritable, Writable> implements Configurable {
 
 	private Configuration configuration;
-	DoubleWritable m = new DoubleWritable();
-//	@Override
-//	public int getPartition(LongWritable key, V val, int numPartitions) {
-//		
-//	}
+	private DoubleWritable m = new DoubleWritable();
 
 	@Override
 	public Configuration getConf() {

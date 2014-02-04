@@ -54,11 +54,8 @@ public class Main {
 		fs.setWorkingDirectory(new Path("/output/MaPe"));
 		
 		conf.setBoolean("mapreduce.map.output.compress", true);
-//		conf.setBoolean("mapreduce.output.fileoutputformat.compress", true);
 		
 		conf.set("mapreduce.map.output.compress.codec", "org.apache.hadoop.io.compress.Lz4Codec");
-//		conf.set("mapreduce.output.fileoutputformat.compress.codec", "org.apache.hadoop.io.compress.BZip2Codec");
-//		conf.set("mapreduce.output.fileoutputformat.compress.type", "BLOCK");
 		
 		if(args.length < 5){
 			System.out.println("");
@@ -109,7 +106,6 @@ public class Main {
 		System.out.println("TotalTIME: " + all.getElapsedTimeSecs());
 		System.out.println("-----------------------");
 		System.out.println();
-//		
 				
 		System.out.flush();
 		System.out.close();
@@ -145,7 +141,6 @@ public class Main {
 		
 		boolean converged = true;
 		
-//		for(int i = 0; i < Integer.parseInt(args[3]) && converged; i++){
 		for(int i = 0; converged; i++){
 			
 			converged = false;
@@ -192,9 +187,7 @@ public class Main {
 			}
 			
 			fs.delete(new Path("OUTPUT/loss-tmp"), true);
-	
-			//System.out.println("Stampiamo la I: "+i);
-	
+		
 		}
 		
 		fs.rename(curr, new Path(args[2]));
@@ -265,7 +258,6 @@ public class Main {
 		    	secondKey = tmp;
 		    }
     		conf.set("interval-"+(i-1), firstKey.split("\\t")[0]+"-"+secondKey.split("\\t")[0]);
-    		//System.out.println("interval-"+(i-1)+" "+ firstKey.split("\\t")[0]+"-"+secondKey.split("\\t")[0]);
 
 		}
 

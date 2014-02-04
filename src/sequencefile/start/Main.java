@@ -113,7 +113,6 @@ public class Main {
 		System.out.println("TotalTIME: " + all.getElapsedTimeSecs());
 		System.out.println("-----------------------");
 		System.out.println();
-//		
 				
 		System.out.flush();
 		System.out.close();
@@ -149,7 +148,6 @@ public class Main {
 		
 		boolean converged = true;
 		
-//		for(int i = 0; i < Integer.parseInt(args[3]) && converged; i++){
 		for(int i = 0; converged; i++){
 			
 			converged = false;
@@ -189,7 +187,6 @@ public class Main {
 	
 			fs.delete(prev, true);
 	
-			// Controlla se è a convergenza o no
 			if(fs.exists(new Path("OUTPUT/convergence"))){
 				converged = true;
 				fs.delete(new Path("OUTPUT/convergence"), true);
@@ -273,7 +270,6 @@ public class Main {
 			while (reader.next(key, value)){
 				secondKey = key.toString();
 			}
-			  // perform some operating
 			reader.close();
 			
     		conf.set("interval-"+(i-1), ""+firstKey.split("\\t")[0]+"-"+secondKey.split("\\t")[0]);

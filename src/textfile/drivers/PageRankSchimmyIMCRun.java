@@ -36,9 +36,6 @@ public class PageRankSchimmyIMCRun extends Configured implements Tool {
 		job.setMapOutputValueClass(DoubleWritable.class);
 		
 		job.setPartitionerClass(SchimmyPartitioner.class); 
-//		job.setPartitionerClass(TotalOrderPartitioner.class);
-
-//		job.setSortComparatorClass(IntWritable.Comparator.class);
 		
 		job.setReducerClass(PageRankSchimmyReducer.class);
 		job.setNumReduceTasks(Integer.parseInt(args[2]));
