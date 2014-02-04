@@ -55,7 +55,7 @@ public class Main {
 
 		conf = new Configuration();
 		fs = FileSystem.get(conf);
-		fs.setWorkingDirectory(new Path("output/MaPe"));
+		fs.setWorkingDirectory(new Path("/output/MaPe"));
 		
 		conf.setBoolean("mapreduce.map.output.compress", true);
 		conf.setBoolean("mapreduce.output.fileoutputformat.compress", true);
@@ -64,12 +64,12 @@ public class Main {
 		conf.set("mapreduce.output.fileoutputformat.compress.codec", "org.apache.hadoop.io.compress.BZip2Codec");
 		conf.set("mapreduce.output.fileoutputformat.compress.type", "BLOCK");
 		
-		if(args.length < 6){
+		if(args.length < 5){
 			System.out.println("");
 			System.out.println("Welcome to the PageRank Hadoop Job.");
 			System.out.println("");
 			System.out.println("Uncorrect number of parameters.");
-			System.out.println("Usage: PageRank <num_reducers> <input_path> <output_path> <num_iterations> <optimization> <percentage_convergence>");
+			System.out.println("Usage: PageRank <num_reducers> <input_path> <output_path> <optimization> <percentage_convergence>");
 			System.out.println("");
 
 			System.exit(0);
@@ -77,19 +77,19 @@ public class Main {
 		
 		try {
 			String[] name = args[1].split("\\/");
-		    System.setOut(new PrintStream(new File("Test-"+name[name.length-1]+"-"+args[4]+"-"+args[5]+".txt")));
+		    System.setOut(new PrintStream(new File("Test-"+name[name.length-1]+"-"+args[3]+"-"+args[4]+".txt")));
 		} catch (Exception e) {
 		     e.printStackTrace();
 		}
 		
 		System.out.println();
-		System.out.println("Starting test with "+args[1]+" and "+args[4]+"-"+args[5]);
+		System.out.println("Starting test with "+args[1]+" and "+args[3]+"-"+args[4]);
 		System.out.println("-----------------------");
 		System.out.println();
 		
 		all.start();
 		
-		conf.setDouble("percentage", Math.abs(Double.parseDouble(args[5])));
+		conf.setDouble("percentage", Math.abs(Double.parseDouble(args[4])));
 		
 		work.start();
 		execCardinality(args);
@@ -103,7 +103,7 @@ public class Main {
 		System.out.println();
 		
 		work.start();
-		execPageRank(args, parseMethod(args[4]));
+		execPageRank(args, parseMethod(args[3]));
 		work.stop();
 
 		System.out.println("Time for total all iterations: "+work.getElapsedTimeSecs());
